@@ -1,0 +1,39 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap');
+
+:root {
+  color-scheme: light;
+  font-family: 'DM Sans', 'Segoe UI', sans-serif;
+  background: #f5f7f9;
+  color: #23394e;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  --navy: #10243b;
+  --navy-2: #183a57;
+  --gold: #e5a33b;
+  --blue: #1c6487;
+  --muted: #8593a0;
+  --line: #e4eaee;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+body { min-width: 320px; background: #f5f7f9; }
+button, input, select, textarea { font: inherit; }
+button:disabled { opacity: .55; cursor: not-allowed; }
+.btn {
+  min-height: 40px; display:inline-flex; align-items:center; justify-content:center; gap:9px;
+  padding:10px 16px; border-radius:8px; border:1px solid transparent; text-decoration:none;
+  cursor:pointer; font-size:12px; font-weight:800; transition:transform .15s, box-shadow .15s, background .15s;
+}
+.btn:not(:disabled):hover { transform:translateY(-1px); }
+.btn-primary { background:#173b59; color:#fff; box-shadow:0 5px 12px #173b5922; }
+.btn-primary:not(:disabled):hover { background:#225979; box-shadow:0 8px 16px #173b5930; }
+.btn-outline { background:white; border-color:#dce4e9; color:#38536a; }
+.btn-outline:hover { border-color:#9cb0bf; background:#fbfcfd; }
+.btn-quiet { color:#d8e3ec; background:transparent; border-color:#486078; }
+.btn-quiet:hover { background:#ffffff12; }
+.btn-small { min-height:32px; padding:7px 11px; font-size:10px; }
+.btn-wide { width:100%; min-height:45px; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline:3px solid #e5a33b55; outline-offset:2px;
+}
