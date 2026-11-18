@@ -1,64 +1,90 @@
 package com.chubb.claims.api;
 
-import java.util.UUID;
-
+import com.chubb.claims.domain.ClaimStatus;
+import com.chubb.claims.service.ClaimService;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.web.bind.annotation.*;
 
-import com.chubb.claims.domain.ClaimStatus;
-import com.chubb.claims.service.ClaimService;
-
-import jakarta.validation.Valid;
+import java.util.Set;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/claims")
 public class ClaimController {
-	private final ClaimService service;
 
-	public ClaimController(ClaimService service) {
-		this.service = service;
-	}
+    private static final Set<String> STAFF_AUTHORITIES = Set.of("ROLE_OFFICER", "ROLE_MANAGER");
 
-	@PostMapping
-	public ResponseEntity<ClaimResponse> submit(@Valid @RequestBody ClaimRequests.SubmitClaim request) {
-		return ResponseEntity.status(HttpStatus.CREATED).body(ClaimResponse.from(service.submit(request)));
-	}
+    private final ClaimService service;
 
-	@GetMapping("/{id}")
-	public ClaimResponse get(@PathVariable UUID id) {
-		return ClaimResponse.from(service.get(id));
-	}
+    public ClaimController(ClaimService service) {
+        this.service = service;
+    }
 
-	@GetMapping
-	public Page<ClaimResponse> list(@RequestParam(required = false) ClaimStatus status,
-			@PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
-		return service.list(status, pageable).map(ClaimResponse::from);
-	}
+    @PostMapping
+    public ResponseEntity<ClaimResponse> submit(
+            @Valid @RequestBody ClaimRequests.SubmitClaim request,
+            Authentication authentication) {
 
-	@PatchMapping("/{id}/assignment")
-	public ClaimResponse assign(@PathVariable UUID id, @Valid @RequestBody ClaimRequests.AssignClaim request) {
-		return ClaimResponse.from(service.assign(id, request.officer()));
-	}
+        ClaimResponse response = ClaimResponse.from(service.submit(
+                request,
+                authentication.getName(),
+                isStaff(authentication)));
 
-	@PatchMapping("/{id}/status")
-	public ClaimResponse progress(@PathVariable UUID id, @RequestParam ClaimStatus status) {
-		return ClaimResponse.from(service.progress(id, status));
-	}
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
 
-	@PostMapping("/{id}/decision")
-	public ClaimResponse decide(@PathVariable UUID id, @Valid @RequestBody ClaimRequests.Decision request) {
-		return ClaimResponse.from(service.decide(id, request));
-	}
+    @GetMapping("/{id}")
+    public ClaimResponse get(@PathVariable UUID id, Authentication authentication) {
+        return ClaimResponse.from(service.getVisibleToUser(
+                id,
+                authentication.getName(),
+                isStaff(authentication)));
+    }
+
+    @GetMapping
+    public Page<ClaimResponse> list(
+            @RequestParam(required = false) ClaimStatus status,
+            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
+            Authentication authentication) {
+
+        return service.listVisibleToUser(
+                        status,
+                        pageable,
+                        authentication.getName(),
+                        isStaff(authentication))
+                .map(ClaimResponse::from);
+    }
+
+    @PatchMapping("/{id}/assignment")
+    public ClaimResponse assign(
+            @PathVariable UUID id,
+            @Valid @RequestBody ClaimRequests.AssignClaim request) {
+        return ClaimResponse.from(service.assign(id, request.officer()));
+    }
+
+    @PatchMapping("/{id}/status")
+    public ClaimResponse progress(@PathVariable UUID id, @RequestParam ClaimStatus status) {
+        return ClaimResponse.from(service.progress(id, status));
+    }
+
+    @PostMapping("/{id}/decision")
+    public ClaimResponse decide(
+            @PathVariable UUID id,
+            @Valid @RequestBody ClaimRequests.Decision request) {
+        return ClaimResponse.from(service.decide(id, request));
+    }
+
+    private boolean isStaff(Authentication authentication) {
+        return authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .anyMatch(STAFF_AUTHORITIES::contains);
+    }
 }
