@@ -927,32 +927,4 @@ Push your assessment branch:
 git push -u origin feature/chubb-claims
 ```
 
-If the assessment repository does not grant your GitHub account write access, ask the assessment team for repository access or the required submission workflow before attempting to push directly.
 
-## 18. Current limitations and production hardening
-
-This is an assessment implementation, not a production-ready insurance claims platform. Important next steps include:
-
-1. Replace in-memory demo users with persisted users or an enterprise identity provider.
-2. Enforce claimant ownership so a claimant can only retrieve their own claims. The current role rules permit any authenticated CLAIMANT to call the claim GET routes.
-3. Add a transactional outbox so a committed database change cannot be lost if Kafka publishing fails.
-4. Add Kafka retry handling, dead-letter topics, consumer idempotency, and durable audit-event persistence.
-5. Add integration tests covering REST + PostgreSQL + Kafka, authorization rules, and error responses.
-6. Add stronger audit history, structured logging, metrics, and health checks.
-7. Externalize all secrets and use TLS/ACLs for database and Kafka connections in deployed environments.
-8. Confirm market-specific validation, claim policy rules, settlement rules, and liability exposure requirements with the business domain.
-
----
-
-## Assessment walkthrough suggestion
-
-A concise demo flow for the technical panel:
-
-1. Explain the domain and claim lifecycle.
-2. Show the package boundaries and PostgreSQL schema.
-3. Login and obtain a JWT.
-4. Submit a claim and retrieve it.
-5. Assign it to an officer, move it to review, and record a decision.
-6. Show the Kafka event in the consumer log.
-7. Run the automated tests.
-8. Explain the design trade-offs and production improvements listed above.
