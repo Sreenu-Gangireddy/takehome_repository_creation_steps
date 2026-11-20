@@ -1,8 +1,5 @@
 # Chubb APAC Claims Management Backend
 
-<img width="1752" height="897" alt="image" src="https://github.com/user-attachments/assets/1ad7ad9c-08aa-4b2e-9327-bc31b4a55d0a" />
-
-
 A backend application for the Chubb APAC claims-management take-home assessment. It is built with Java 21 and Spring Boot and exposes REST APIs for claim submission, claim lookup, assignment, status progression, and claim decisions. It also demonstrates JWT authentication, role-based endpoint access, PostgreSQL persistence with Flyway migrations, and Kafka claim-lifecycle events.
 
 > **Assessment scope:** The supplied assessment brief states that the frontend is out of scope. This repository focuses on the backend and its API contract.
@@ -109,6 +106,9 @@ chubb-claims-backend/
 The backend is implemented as a **modular monolith**: one Spring Boot application with clear API, security, service, domain, persistence, and messaging boundaries. Kafka is used for claim-lifecycle events; it does not turn the application into a set of microservices.
 
 ### 1. Overall system architecture
+
+<img width="1752" height="897" alt="image" src="https://github.com/user-attachments/assets/1ad7ad9c-08aa-4b2e-9327-bc31b4a55d0a" />
+
 
 ```mermaid
 flowchart TB
